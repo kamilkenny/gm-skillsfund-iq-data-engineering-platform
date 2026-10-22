@@ -1,2 +1,2 @@
-# Extraction and validation work with Python 3.12 standard library.
-# Dash and Plotly are installed separately when the backend is ready.
+# App Service Oryx installs dependencies from this file at the repository root.
+-r dashboard/requirements.txt
