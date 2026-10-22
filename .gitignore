@@ -8,3 +8,4 @@ __pycache__/
 data/processed/
 data/raw/
 *.pbix
+sql/003_load_dfe_evidence.sql
