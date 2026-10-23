@@ -73,13 +73,20 @@ def chart_note(shows, matters, caution=None):
     ], className='chart-note')
 
 
-def panel(title, intro, children, note=None, badge=None, extra_class=''):
-    return html.Section([
-        html.Div([html.Div([html.H3(title), html.P(intro, className='panel-intro')]),
-                  small_tag(badge, 'panel-badge') if badge else None], className='panel-header'),
-        children,
-        note,
-    ], className=('panel ' + extra_class).strip())
+def panel(title, intro, children, note=None, badge=None, extra_class='', note_first=False):
+    # Table notes belong above the DataTable, never below its dynamic filter and row region.
+    # Each panel remains a normal document-flow container rather than relying on overlays.
+    header = html.Div([
+        html.Div([html.H3(title), html.P(intro, className='panel-intro')]),
+        small_tag(badge, 'panel-badge') if badge else None,
+    ], className='panel-header')
+    contents = [header]
+    if note_first and note is not None:
+        contents.append(note)
+    contents.append(children)
+    if not note_first and note is not None:
+        contents.append(note)
+    return html.Section(contents, className=('panel ' + extra_class).strip())
 
 
 def empty_panel(title, detail):
@@ -93,7 +100,7 @@ def table_widget(rows, page_size=12, filterable=False):
         data=rows, columns=[{'name': col, 'id': col} for col in rows[0]],
         page_size=page_size, sort_action='native',
         filter_action='native' if filterable else 'none',
-        style_table={'overflowX': 'auto', 'width': '100%'},
+        style_table={'overflowX': 'auto', 'width': '100%', 'minWidth': '100%', 'maxWidth': '100%'},
         style_header={
             'backgroundColor': '#f0f5f6', 'fontWeight': '700',
             'color': INK, 'border': 'none', 'padding': '15px 14px',
@@ -130,11 +137,13 @@ def funding_page(rows):
         labels=['Grant', 'Procured'], values=[float(grant), float(procured)],
         hole=.72, sort=False, direction='clockwise',
         marker=dict(colors=[TEAL, OCHRE], line=dict(color='#fff', width=4)),
-        textinfo='percent', textposition='outside',
+        textinfo='percent', textposition='inside', insidetextorientation='horizontal',
+        textfont=dict(color='#ffffff', size=13),
         customdata=[pounds(grant), pounds(procured)],
         hovertemplate='%{label}<br>%{customdata}<br>%{percent}<extra></extra>',
     ))
-    style_fig(donut, 320, showlegend=False,
+    style_fig(donut, 340, showlegend=False,
+              margin=dict(l=18, r=18, t=12, b=18),
               annotations=[dict(text='<b>2 ROUTES</b><br><span style="font-size:11px">Published funding</span>',
                                 x=.5, y=.5, showarrow=False, font=dict(size=19, color=INK))])
 
@@ -147,8 +156,8 @@ def funding_page(rows):
         customdata=[pounds(r['total_allocation_gbp']) for r in top_rev],
         hovertemplate='%{y}<br>%{customdata}<extra></extra>',
     ))
-    style_fig(ranked, 428, xaxis_title='Approved allocation (£ million)',
-              margin=dict(l=8, r=20, t=18, b=35),
+    style_fig(ranked, 450, xaxis_title='Approved allocation (£ million)',
+              margin=dict(l=8, r=20, t=18, b=75),
               yaxis=dict(showgrid=False, automargin=True, tickfont=dict(size=10)),
               xaxis=dict(showgrid=True, gridcolor='#eef3f4', zeroline=False, ticksuffix='m'))
 
@@ -172,22 +181,26 @@ def funding_page(rows):
         ], className='kpi-row'),
         html.Div([
             panel('How funding is structured', 'Share of the approved allocation by route.',
-                  dcc.Graph(figure=donut, config={'displayModeBar': False}, responsive=True),
+                  html.Div(dcc.Graph(figure=donut, config={'displayModeBar': False},
+                                     responsive=True, style={'height': '340px'}),
+                           className='chart-stage chart-stage-donut'),
                   note=chart_note('The financial split between grant and procured routes.',
                                   'Makes the overall commissioning mix visible at a glance.',
                                   'Allocated amounts are not actual spend or audited delivery.'), badge='FINANCIAL MIX'),
             panel('Where allocations are concentrated', 'Ten largest provider allocations by published amount.',
-                  dcc.Graph(figure=ranked, config={'displayModeBar': False}, responsive=True),
+                  html.Div(dcc.Graph(figure=ranked, config={'displayModeBar': False},
+                                     responsive=True, style={'height': '450px'}),
+                           className='chart-stage chart-stage-ranked'),
                   note=chart_note('The largest provider totals, aggregated from allocation records only.',
                                   'Helps reviewers spot concentration and decide which allocations may need closer scrutiny.',
                                   'Relative financial size is not a measure of value for money or provider performance.'), badge='TOP 10'),
         ], className='insights-grid'),
         panel('Funding allocation register', 'Search, sort and inspect every funded provider represented in the published workbook.',
-              table_widget(funding_rows, filterable=True),
+              html.Div(table_widget(funding_rows, filterable=True), className='table-shell'),
               note=chart_note('Provider-level reconciled allocation amounts and line counts.',
                               'Provides a traceable basis for funding assurance and deeper provider review.',
                               'A provider may hold more than one procurement lot; rows are not deduplicated by UKPRN alone.'),
-              badge=f'{provider_count} PROVIDERS'),
+              badge=f'{provider_count} PROVIDERS', extra_class='panel-table', note_first=True),
     ])
 
 
@@ -351,17 +364,18 @@ def borough_page(rows):
                   badge='REFERENCE PERIOD'),
         ], className='insights-grid'),
         panel('Borough evidence register', 'Inspect the published numerical and disclosure values by borough and period.',
-              table_widget(table_rows, filterable=True),
+              html.Div(table_widget(table_rows, filterable=True), className='table-shell'),
               note=chart_note('The recorded values and publication caveats at borough-period grain.',
                               'Supports transparent interpretation of area-based evidence.',
                               'Counts are rounded as published. Provisional periods require separate interpretation.'),
-              badge=f'{len(rows)} RECORDS'),
+              badge=f'{len(rows)} RECORDS', extra_class='panel-table', note_first=True),
     ])
 
 
-def ops_page(health, metrics):
+def ops_page(health, metrics, runs=None):
     health = health or []
     metrics = metrics or {}
+    runs = runs or []
     data = [{
         'Dataset': r['dataset'], 'Rows loaded': f"{int(r['observation_rows']):,}",
         'Distinct entities': f"{int(r['distinct_entities']):,}",
@@ -383,11 +397,11 @@ def ops_page(health, metrics):
         html.Div([
             panel('Evidence sources and version fingerprints',
                   'The SQL source-health view records the loaded row counts, coverage and source hashes.',
-                  table_widget(data, page_size=8),
+                  html.Div(table_widget(data, page_size=8), className='table-shell'),
                   note=chart_note('The datasets and source versions currently stored in Azure SQL.',
                                   'Supports repeatable ingestion, lineage checks and audit questions.',
                                   'Hash-derived versions do not independently verify a publication date or source approval.'),
-                  badge='LINEAGE REGISTER'),
+                  badge='LINEAGE REGISTER', extra_class='panel-table', note_first=True),
             panel('Data-to-decision architecture',
                   'How the published evidence is transformed into a read-only analytical experience.',
                   html.Div([
@@ -405,9 +419,23 @@ def ops_page(health, metrics):
                   ], className='lineage-flow'),
                   note=chart_note('The architectural responsibilities at each processing stage.',
                                   'Makes it clear where ingestion, validation, modelling and presentation occur.',
-                                  'The initial baseline was manually ingested; scheduled Azure Functions ingestion is not yet active.'),
+                                  'The initial baseline was manually ingested. Scheduled SQL automation is shown separately in the audit history when active.'),
                   badge='ARCHITECTURE'),
         ], className='insights-grid'),
+        panel('Scheduled pipeline execution history',
+              'Recorded Azure Functions runs, their status and inserted rows. The schedule is not considered operational until a successful SQL run exists.',
+              table_widget([{
+                  'Started UTC': str(r['started_at_utc']),
+                  'Finished UTC': str(r['finished_at_utc'] or ''),
+                  'Status': r['status'], 'Inserted rows': r.get('rows_inserted') or 0,
+                  'Details': r.get('message') or '',
+              } for r in runs], page_size=10) if runs else
+              empty_panel('No SQL pipeline runs yet',
+                          'Source checking may be staged in Blob Storage, but no successful SQL-publishing run has been logged.'),
+              note=chart_note('The most recent automated SQL ingestion jobs and their completion status.',
+                              'Gives the assurance team an auditable trail of dataset refreshes.',
+                              'A SUCCESS audit row documents completed SQL publishing; it does not certify source quality.'),
+              badge='PIPELINE AUDIT'),
         html.Div([
             html.Div([html.Span('IN OPERATION', className='mini-status'),
                       html.H3('Published source integration'),
@@ -417,9 +445,10 @@ def ops_page(health, metrics):
                       html.H3('Disclosure-aware reporting'),
                       html.P('Suppressed and unavailable values remain non-numeric, not zero-filled.')],
                      className='assurance-card'),
-            html.Div([html.Span('NEXT DELIVERY PHASE', className='mini-status pending'),
+            html.Div([html.Span('AUTOMATION AUDIT' if runs else 'NEXT DELIVERY PHASE', className='mini-status' if runs else 'mini-status pending'),
                       html.H3('Scheduled pipeline orchestration'),
-                      html.P('Azure Functions scheduling, run logging, retries and alerting are planned, not yet operational.')],
+                      html.P('Operational SQL pipeline runs are recorded and shown above.' if runs else
+                             'Azure Functions SQL publishing has not yet been verified; no operational claim is made.')],
                      className='assurance-card'),
         ], className='assurance-grid'),
         html.Div([html.Strong('Disclosure and independence statement'),
@@ -524,7 +553,8 @@ def render_content(tab, selected, _n):
         if tab == 'borough':
             return borough_page(db.borough_evidence())
         if tab == 'ops':
-            return ops_page(db.source_health(), db.quality_metrics())
+            return ops_page(db.source_health(), db.quality_metrics(),
+                            db.pipeline_runs() if hasattr(db, 'pipeline_runs') else [])
         return empty_panel('Unknown view', 'Choose one of the four intelligence sections above.')
     except Exception:
         app.logger.exception('SQL reporting query failed: %s', tab)

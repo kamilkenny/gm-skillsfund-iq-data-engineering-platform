@@ -10,3 +10,43 @@
 .lineage-flow{border:1px solid #e1e9e8;background:#f7fbfa;border-radius:12px;padding:15px;margin:8px 0}.flow-step{display:flex;gap:13px;align-items:center;padding:10px 13px;background:#fff;border:1px solid #e0ece9;border-radius:9px}.flow-number{display:flex;align-items:center;justify-content:center;height:35px;width:35px;flex-shrink:0;background:#dff2eb;color:#168c81;border-radius:8px;font:800 12px 'Manrope',sans-serif}.flow-step strong{font:800 12px 'Manrope',sans-serif;display:block}.flow-step small{display:block;font-size:11px;color:#6e838a;margin-top:2px}.flow-arrow{color:#7ea5a0;text-align:center;font-size:17px;line-height:22px}.assurance-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-bottom:20px}.assurance-card{padding:22px;background:#fff;border:1px solid var(--border);border-radius:12px}.assurance-card h3{font:800 15px 'Manrope',sans-serif;margin:12px 0 7px}.assurance-card p{font-size:12px;color:#647680;line-height:1.6;margin:0}.mini-status{font:800 9px 'Manrope',sans-serif;color:var(--teal-dark);letter-spacing:.09em;background:#e6f5f0;padding:6px 8px;border-radius:4px}.mini-status.pending{color:#956627;background:#fdf2df}.governance-banner{padding:24px 27px;background:#e6f1ee;border:1px solid #c8e4da;border-radius:12px;font-size:12px;color:#476b65;line-height:1.7}.governance-banner strong{color:#196c62;font:800 13px 'Manrope',sans-serif}.governance-banner p{margin:8px 0 0}.error-panel{background:#fff4f0;border:1px solid #f1cbbd;border-radius:12px;padding:30px}.error-panel h3{font:800 21px 'Manrope',sans-serif;margin:14px 0}.error-panel p{font-size:13px;color:#805c55}
 .site-footer{background:#0e2734;color:#fff;padding:48px max(34px,calc((100vw - 1440px)/2)) 24px}.footer-columns{display:flex;justify-content:space-between;gap:40px;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:23px}.footer-brand strong{font:800 24px 'Manrope',sans-serif;letter-spacing:-.05em}.footer-brand p{font-size:12px;color:#aac7c9;margin:6px 0 0}.footer-stack span{font:800 10px 'Manrope',sans-serif;letter-spacing:.15em;color:#f1bd79}.footer-stack p{font-size:12px;color:#bcd1d3;max-width:490px;margin:8px 0 0}.footer-bottom{display:flex;justify-content:space-between;gap:30px;align-items:end;padding-top:19px}.footer-bottom p{font-size:11px;color:#a3c0c5;line-height:1.7;max-width:650px;margin:0}.footer-bottom a{color:#d5ede8;text-decoration:none;border-bottom:1px solid rgba(213,237,232,.55)}.footer-bottom strong{color:#fff}button:focus-visible,a:focus-visible,.tab:focus-visible{outline:3px solid #f2be79!important;outline-offset:3px}
 @media(max-width:1100px){.hero{grid-template-columns:1fr .58fr;gap:25px}.hero h1{font-size:clamp(42px,5vw,65px)}.kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}.insights-grid{grid-template-columns:1fr 1fr}.tab{font-size:11px!important}}@media(max-width:800px){.topbar{padding:0 22px}.hero{grid-template-columns:1fr;padding:62px 22px}.hero-visual{display:none}.body-shell{padding:0 20px 45px}.site-footer{padding:36px 22px 26px}.purpose-detail{margin-left:0;width:100%}.tabs-list .tab-container{grid-template-columns:repeat(2,minmax(0,1fr))}.insights-grid{grid-template-columns:1fr}.footer-bottom,.footer-columns{flex-direction:column;align-items:flex-start;gap:15px}.section-title-row{display:block}.meta-chip{display:inline-block;margin-top:14px}.assurance-grid{grid-template-columns:1fr}.panel{padding:20px}}@media(max-width:520px){.header-status{display:none}.hero h1{font-size:clamp(40px,11vw,58px)}.hero-subtitle{font-size:14px}.kpi-row{grid-template-columns:1fr 1fr;gap:9px}.kpi{padding:17px 14px;min-height:164px}.kpi-value{font-size:24px}.kpi-title{font-size:11px}.kpi-description{font-size:11px}.chart-note{grid-template-columns:1fr}.tabs-list .tab-container{grid-template-columns:1fr 1fr;gap:7px!important}.tab{white-space:normal;min-height:63px!important;padding:10px 5px!important}.panel-header{display:block}.panel-badge{display:inline-block;margin-top:9px}.brand-type strong{font-size:15px}.brand-type span{font-size:8px}.hero-overline{font-size:9px}.footer-columns{gap:25px}}
+
+
+/* GM SkillsFund IQ · v3 — containment and narrative/table separation.
+   Keep Plotly within its card and DataTable filters below the interpretive notes. */
+.panel { position: relative; display: flex; flex-direction: column; height: auto; min-height: 0; }
+.panel-header { flex: 0 0 auto; min-width: 0; }
+.panel-header > div:first-child { min-width: 0; }
+.insights-grid { align-items: stretch; grid-auto-rows: auto; }
+.insights-grid > .panel { align-self: stretch; min-width: 0; overflow: hidden; }
+.chart-stage { position: relative; flex: 0 0 auto; width: 100%; min-width: 0; overflow: hidden; margin: 6px 0 12px; isolation: isolate; }
+.chart-stage-donut { height: 358px; }
+.chart-stage-ranked { height: 472px; }
+.chart-stage .dash-graph,
+.chart-stage .js-plotly-plot,
+.chart-stage .plot-container { display: block; max-width: 100%; }
+.chart-stage .dash-graph { width: 100%; }
+.panel:not(.panel-table) > .chart-note { flex: 0 0 auto; margin-top: 18px; position: relative; clear: both; }
+.panel-table { overflow: hidden; }
+.panel-table .chart-note {
+    display: grid;
+    flex: 0 0 auto;
+    margin: 0 0 21px;
+    padding: 16px 0 20px;
+    border-top: 1px solid #e9eff0;
+    border-bottom: 1px solid #e9eff0;
+}
+.panel-table .table-shell { display: block; width: 100%; min-width: 0; position: relative; isolation: isolate; clear: both; padding-top: 4px; }
+.panel-table .dash-table-container { width: 100%; max-width: 100%; min-width: 0; }
+.panel-table .dash-spreadsheet-container { width: 100% !important; max-width: 100% !important; }
+.panel-table .dash-spreadsheet-inner { max-width: 100% !important; }
+.panel-table .dash-spreadsheet-menu { display: none; }
+.panel-table .dash-table-container .row { margin: 0 !important; }
+.panel-table .dash-table-container .dash-filter { min-height: 42px; }
+.panel-table .dash-table-container .dash-spreadsheet-container th,
+.panel-table .dash-table-container .dash-spreadsheet-container td { vertical-align: middle; }
+@media(max-width:800px){
+    .chart-stage-donut{height:350px}
+    .chart-stage-ranked{height:468px}
+    .panel-table .chart-note{grid-template-columns:1fr;gap:12px}
+}

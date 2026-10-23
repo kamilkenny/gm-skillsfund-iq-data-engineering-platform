@@ -1,0 +1,4 @@
+.git*
+local.settings.json
+__pycache__/
+*.pyc
