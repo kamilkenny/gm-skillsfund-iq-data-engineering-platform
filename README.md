@@ -1,6 +1,7 @@
 # GM SkillsFund IQ
 
 <img width="1861" height="818" alt="gmca" src="https://github.com/user-attachments/assets/83d24d14-1d02-476d-9caf-6609d3a4672c" />
+
 # live intelligence dashboard - https://gm-skillsfundiq-b1-kamil-898341.azurewebsites.net/
 **Adult Skills Funding, Delivery Evidence and Data Assurance**, a portfolio engineering prototype using official published data for Greater Manchester. Independent demonstration, **not an official GMCA product**.
 
