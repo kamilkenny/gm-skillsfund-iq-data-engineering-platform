@@ -27,11 +27,6 @@ python3 -m src.etl --output-dir data/processed
 
 The ETL command downloads the DfE CSVs through their official public endpoints, retains only reported rows matching funded provider UKPRNs and Greater Manchester borough totals, and produces a manifest with source metadata. It **does not** yet load Azure SQL or publish the dashboard. These are deliberate next milestones.
 
-## Roadmap
-1. Verify source data and record contracts, done for the three inputs listed above.
-2. Connect Azure Blob Storage, Azure SQL staging and audit tables, and complete identity-based Azure Functions scheduling.
-3. Build a Plotly Dash app reading **verified SQL reporting views** and deploy it to Azure App Service.
-4. Add Power BI semantic modelling after the live application is tested.
 
 ## Responsible interpretation
 - Never use a provider's published national activity as proof of GMCA-funded delivery.
